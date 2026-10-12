@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقعي لقنوات البث المباشر - Taha Channels</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            display: block;
+            padding: 14px 20px;
+            font-size: 16px;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .search-box:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .channel-card {
+            background-color: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .channel-card:hover {
+            border-color: #38bdf8;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .channel-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        video {
+            width: 100%;
+            height: 160px;
+            background: #000;
+            border-radius: 8px;
+            outline: none;
+        }
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            color: #94a3b8;
+            padding: 40px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>قنوات البث المباشر</h1>
+    <div class="subtitle">تم تصميم الموقع بواسطة طه أحمد</div>
+    
+    <input type="text" id="search" class="search-box" placeholder="ابحث عن رقم أو اسم القناة..." onkeyup="filterChannels()">
+
+    <div class="channels-grid" id="channelsContainer">
+        <!-- سيتم توليد القنوات هنا تلقائياً -->
+    </div>
+
+    <script>
+        const m3uData = `
+#EXTM3U
+#EXTINF:-1,Channel 5014
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5014/index.m3u8
+#EXTINF:-1,Channel 9344
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/9344/index.m3u8
+#EXTINF:-1,Channel 9346
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/9346/index.m3u8
+#EXTINF:-1,Channel 5015
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5015/index.m3u8
+#EXTINF:-1,Channel 527
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/527/index.m3u8
+#EXTINF:-1,Channel 147
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/147/index.m3u8
+#EXTINF:-1,Channel 910
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/910/index.m3u8
+#EXTINF:-1,Channel 1064
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/1064/index.m3u8
+#EXTINF:-1,Channel 242
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/242/index.m3u8
+#EXTINF:-1,Channel 243
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/243/index.m3u8
+#EXTINF:-1,Channel 244
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/244/index.m3u8
+#EXTINF:-1,Channel 245
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/245/index.m3u8
+#EXTINF:-1,Channel 2161
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/2161/index.m3u8
+#EXTINF:-1,Channel 2162
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/2162/index.m3u8
+#EXTINF:-1,Channel 2397
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/2397/index.m3u8
+#EXTINF:-1,Channel 5009
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5009/index.m3u8
+#EXTINF:-1,Channel 5010
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5010/index.m3u8
+#EXTINF:-1,Channel 5011
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5011/index.m3u8
+#EXTINF:-1,Channel 5012
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5012/index.m3u8
+#EXTINF:-1,Channel 5013
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/5013/index.m3u8
+#EXTINF:-1,Channel 6165
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6165/index.m3u8
+#EXTINF:-1,Channel 6166
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6166/index.m3u8
+#EXTINF:-1,Channel 6167
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6167/index.m3u8
+#EXTINF:-1,Channel 6168
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6168/index.m3u8
+#EXTINF:-1,Channel 6171
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6171/index.m3u8
+#EXTINF:-1,Channel 6172
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6172/index.m3u8
+#EXTINF:-1,Channel 6173
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6173/index.m3u8
+#EXTINF:-1,Channel 6174
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6174/index.m3u8
+#EXTINF:-1,Channel 6175
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6175/index.m3u8
+#EXTINF:-1,Channel 6176
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6176/index.m3u8
+#EXTINF:-1,Channel 6177
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6177/index.m3u8
+#EXTINF:-1,Channel 6178
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6178/index.m3u8
+#EXTINF:-1,Channel 6180
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6180/index.m3u8
+#EXTINF:-1,Channel 6181
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6181/index.m3u8
+#EXTINF:-1,Channel 6182
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6182/index.m3u8
+#EXTINF:-1,Channel 6183
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6183/index.m3u8
+#EXTINF:-1,Channel 6185
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6185/index.m3u8
+#EXTINF:-1,Channel 6186
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6186/index.m3u8
+#EXTINF:-1,Channel 6187
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6187/index.m3u8
+#EXTINF:-1,Channel 6188
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6188/index.m3u8
+#EXTINF:-1,Channel 6189
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6189/index.m3u8
+#EXTINF:-1,Channel 6191
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6191/index.m3u8
+#EXTINF:-1,Channel 6192
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6192/index.m3u8
+#EXTINF:-1,Channel 6193
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6193/index.m3u8
+#EXTINF:-1,Channel 6194
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6194/index.m3u8
+#EXTINF:-1,Channel 6195
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6195/index.m3u8
+#EXTINF:-1,Channel 6196
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6196/index.m3u8
+#EXTINF:-1,Channel 6197
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6197/index.m3u8
+#EXTINF:-1,Channel 6199
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6199/index.m3u8
+#EXTINF:-1,Channel 6200
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6200/index.m3u8
+#EXTINF:-1,Channel 6202
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6202/index.m3u8
+#EXTINF:-1,Channel 6208
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6208/index.m3u8
+#EXTINF:-1,Channel 6212
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6212/index.m3u8
+#EXTINF:-1,Channel 6213
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6213/index.m3u8
+#EXTINF:-1,Channel 6214
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6214/index.m3u8
+#EXTINF:-1,Channel 6215
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6215/index.m3u8
+#EXTINF:-1,Channel 6216
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6216/index.m3u8
+#EXTINF:-1,Channel 6217
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6217/index.m3u8
+#EXTINF:-1,Channel 6218
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6218/index.m3u8
+#EXTINF:-1,Channel 6219
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6219/index.m3u8
+#EXTINF:-1,Channel 6220
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6220/index.m3u8
+#EXTINF:-1,Channel 6221
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6221/index.m3u8
+#EXTINF:-1,Channel 6222
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6222/index.m3u8
+#EXTINF:-1,Channel 6223
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6223/index.m3u8
+#EXTINF:-1,Channel 6224
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6224/index.m3u8
+#EXTINF:-1,Channel 6225
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6225/index.m3u8
+#EXTINF:-1,Channel 6226
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6226/index.m3u8
+#EXTINF:-1,Channel 6227
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6227/index.m3u8
+#EXTINF:-1,Channel 6228
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6228/index.m3u8
+#EXTINF:-1,Channel 6229
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6229/index.m3u8
+#EXTINF:-1,Channel 6230
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6230/index.m3u8
+#EXTINF:-1,Channel 6231
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6231/index.m3u8
+#EXTINF:-1,Channel 6232
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6232/index.m3u8
+#EXTINF:-1,Channel 6233
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6233/index.m3u8
+#EXTINF:-1,Channel 6234
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6234/index.m3u8
+#EXTINF:-1,Channel 6235
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6235/index.m3u8
+#EXTINF:-1,Channel 6236
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6236/index.m3u8
+#EXTINF:-1,Channel 6237
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6237/index.m3u8
+#EXTINF:-1,Channel 6238
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6238/index.m3u8
+#EXTINF:-1,Channel 6240
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6240/index.m3u8
+#EXTINF:-1,Channel 6241
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6241/index.m3u8
+#EXTINF:-1,Channel 6242
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6242/index.m3u8
+#EXTINF:-1,Channel 6243
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6243/index.m3u8
+#EXTINF:-1,Channel 6244
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6244/index.m3u8
+#EXTINF:-1,Channel 6245
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6245/index.m3u8
+#EXTINF:-1,Channel 6246
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6246/index.m3u8
+#EXTINF:-1,Channel 6247
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6247/index.m3u8
+#EXTINF:-1,Channel 6248
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6248/index.m3u8
+#EXTINF:-1,Channel 6249
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6249/index.m3u8
+#EXTINF:-1,Channel 6250
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6250/index.m3u8
+#EXTINF:-1,Channel 6251
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6251/index.m3u8
+#EXTINF:-1,Channel 6252
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6252/index.m3u8
+#EXTINF:-1,Channel 6253
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6253/index.m3u8
+#EXTINF:-1,Channel 6255
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6255/index.m3u8
+#EXTINF:-1,Channel 6256
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6256/index.m3u8
+#EXTINF:-1,Channel 6257
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6257/index.m3u8
+#EXTINF:-1,Channel 6258
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6258/index.m3u8
+#EXTINF:-1,Channel 6259
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6259/index.m3u8
+#EXTINF:-1,Channel 6260
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6260/index.m3u8
+#EXTINF:-1,Channel 6261
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6261/index.m3u8
+#EXTINF:-1,Channel 6262
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6262/index.m3u8
+#EXTINF:-1,Channel 6264
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6264/index.m3u8
+#EXTINF:-1,Channel 6265
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6265/index.m3u8
+#EXTINF:-1,Channel 6266
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6266/index.m3u8
+#EXTINF:-1,Channel 6267
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6267/index.m3u8
+#EXTINF:-1,Channel 6268
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6268/index.m3u8
+#EXTINF:-1,Channel 6269
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6269/index.m3u8
+#EXTINF:-1,Channel 6270
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6270/index.m3u8
+#EXTINF:-1,Channel 6271
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6271/index.m3u8
+#EXTINF:-1,Channel 6272
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6272/index.m3u8
+#EXTINF:-1,Channel 6275
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6275/index.m3u8
+#EXTINF:-1,Channel 6277
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6277/index.m3u8
+#EXTINF:-1,Channel 6281
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6281/index.m3u8
+#EXTINF:-1,Channel 6282
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6282/index.m3u8
+#EXTINF:-1,Channel 6284
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6284/index.m3u8
+#EXTINF:-1,Channel 6286
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6286/index.m3u8
+#EXTINF:-1,Channel 6287
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6287/index.m3u8
+#EXTINF:-1,Channel 6288
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6288/index.m3u8
+#EXTINF:-1,Channel 6289
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6289/index.m3u8
+#EXTINF:-1,Channel 6290
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6290/index.m3u8
+#EXTINF:-1,Channel 6293
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6293/index.m3u8
+#EXTINF:-1,Channel 6294
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6294/index.m3u8
+#EXTINF:-1,Channel 6295
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6295/index.m3u8
+#EXTINF:-1,Channel 6296
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6296/index.m3u8
+#EXTINF:-1,Channel 6298
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/6298/index.m3u8
+#EXTINF:-1,Channel 9064
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/9064/index.m3u8
+#EXTINF:-1,Channel 9065
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/9065/index.m3u8
+#EXTINF:-1,Channel 9066
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/9066/index.m3u8
+#EXTINF:-1,Channel 10049
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/10049/index.m3u8
+#EXTINF:-1,Channel 11051
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/11051/index.m3u8
+#EXTINF:-1,Channel 11052
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/11052/index.m3u8
+#EXTINF:-1,Channel 11068
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/11068/index.m3u8
+#EXTINF:-1,Channel 11117
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/11117/index.m3u8
+#EXTINF:-1,Channel 12106
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12106/index.m3u8
+#EXTINF:-1,Channel 12107
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12107/index.m3u8
+#EXTINF:-1,Channel 12108
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12108/index.m3u8
+#EXTINF:-1,Channel 12109
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12109/index.m3u8
+#EXTINF:-1,Channel 12110
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12110/index.m3u8
+#EXTINF:-1,Channel 12111
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12111/index.m3u8
+#EXTINF:-1,Channel 12113
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12113/index.m3u8
+#EXTINF:-1,Channel 12121
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12121/index.m3u8
+#EXTINF:-1,Channel 12122
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12122/index.m3u8
+#EXTINF:-1,Channel 12124
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12124/index.m3u8
+#EXTINF:-1,Channel 12125
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12125/index.m3u8
+#EXTINF:-1,Channel 12128
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12128/index.m3u8
+#EXTINF:-1,Channel 12130
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12130/index.m3u8
+#EXTINF:-1,Channel 12131
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12131/index.m3u8
+#EXTINF:-1,Channel 12133
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12133/index.m3u8
+#EXTINF:-1,Channel 12135
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12135/index.m3u8
+#EXTINF:-1,Channel 12136
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12136/index.m3u8
+#EXTINF:-1,Channel 12137
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12137/index.m3u8
+#EXTINF:-1,Channel 12138
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12138/index.m3u8
+#EXTINF:-1,Channel 12139
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12139/index.m3u8
+#EXTINF:-1,Channel 12140
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12140/index.m3u8
+#EXTINF:-1,Channel 12141
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12141/index.m3u8
+#EXTINF:-1,Channel 12142
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12142/index.m3u8
+#EXTINF:-1,Channel 12143
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12143/index.m3u8
+#EXTINF:-1,Channel 12144
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12144/index.m3u8
+#EXTINF:-1,Channel 12146
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12146/index.m3u8
+#EXTINF:-1,Channel 12147
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12147/index.m3u8
+#EXTINF:-1,Channel 12148
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12148/index.m3u8
+#EXTINF:-1,Channel 12149
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12149/index.m3u8
+#EXTINF:-1,Channel 12150
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12150/index.m3u8
+#EXTINF:-1,Channel 12151
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12151/index.m3u8
+#EXTINF:-1,Channel 12152
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12152/index.m3u8
+#EXTINF:-1,Channel 12153
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12153/index.m3u8
+#EXTINF:-1,Channel 12154
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12154/index.m3u8
+#EXTINF:-1,Channel 12155
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12155/index.m3u8
+#EXTINF:-1,Channel 12156
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12156/index.m3u8
+#EXTINF:-1,Channel 12157
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12157/index.m3u8
+#EXTINF:-1,Channel 12158
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12158/index.m3u8
+#EXTINF:-1,Channel 12160
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12160/index.m3u8
+#EXTINF:-1,Channel 12161
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12161/index.m3u8
+#EXTINF:-1,Channel 12162
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12162/index.m3u8
+#EXTINF:-1,Channel 12163
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12163/index.m3u8
+#EXTINF:-1,Channel 12164
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12164/index.m3u8
+#EXTINF:-1,Channel 12165
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12165/index.m3u8
+#EXTINF:-1,Channel 12166
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12166/index.m3u8
+#EXTINF:-1,Channel 12167
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12167/index.m3u8
+#EXTINF:-1,Channel 12168
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12168/index.m3u8
+#EXTINF:-1,Channel 12169
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12169/index.m3u8
+#EXTINF:-1,Channel 12178
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12178/index.m3u8
+#EXTINF:-1,Channel 12181
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12181/index.m3u8
+#EXTINF:-1,Channel 12183
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12183/index.m3u8
+#EXTINF:-1,Channel 12184
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12184/index.m3u8
+#EXTINF:-1,Channel 12187
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12187/index.m3u8
+#EXTINF:-1,Channel 12188
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12188/index.m3u8
+#EXTINF:-1,Channel 12189
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12189/index.m3u8
+#EXTINF:-1,Channel 12190
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12190/index.m3u8
+#EXTINF:-1,Channel 12191
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12191/index.m3u8
+#EXTINF:-1,Channel 12192
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12192/index.m3u8
+#EXTINF:-1,Channel 12193
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12193/index.m3u8
+#EXTINF:-1,Channel 12194
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12194/index.m3u8
+#EXTINF:-1,Channel 12204
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12204/index.m3u8
+#EXTINF:-1,Channel 12205
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/12205/index.m3u8
+#EXTINF:-1,Channel 14176
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/14176/index.m3u8
+#EXTINF:-1,Channel 16069
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/16069/index.m3u8
+#EXTINF:-1,Channel 18075
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/18075/index.m3u8
+#EXTINF:-1,Channel 18076
+http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/GR7E6CW6C7XSQL3R36FTRRWW/18076/index.m3u8
+        `;
+
+        let channels = [];
+
+        function parseM3U(data) {
+            const lines = data.split('\n');
+            let currentChannel = {};
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (line.startsWith('#EXTINF:')) {
+                    const commaIndex = line.lastIndexOf(',');
+                    if (commaIndex !== -1) {
+                        currentChannel.name = line.substring(commaIndex + 1).trim();
+                    }
+                } else if (line && !line.startsWith('#')) {
+                    currentChannel.url = line;
+                    if (currentChannel.name && currentChannel.url) {
+                        channels.push({ ...currentChannel });
+                    }
+                    currentChannel = {};
+                }
+            }
+        }
+
+        function displayChannels(items) {
+            const container = document.getElementById('channelsContainer');
+            container.innerHTML = '';
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="no-results">لم يتم العثور على قنوات مطابقة للبحث</div>';
+                return;
+            }
+
+            items.forEach(ch => {
+                const card = document.createElement('div');
+                card.className = 'channel-card';
+                card.innerHTML = `
+                    <div class="channel-name" title="${ch.name}">${ch.name}</div>
+                    <video controls preload="none" src="${ch.url}"></video>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterChannels() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const filtered = channels.filter(ch => ch.name.toLowerCase().includes(query));
+            displayChannels(filtered);
+        }
+
+        parseM3U(m3uData);
+        displayChannels(channels);
+    </script>
+
+</body>
+</html>
